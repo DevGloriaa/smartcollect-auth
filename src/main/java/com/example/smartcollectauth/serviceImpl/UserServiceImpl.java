@@ -1,6 +1,13 @@
 package com.example.smartcollectauth.serviceImpl;
 
+import com.example.smartcollectauth.dto.LoginDto;
+import com.example.smartcollectauth.dto.UserRegistrationRequest;
+import com.example.smartcollectauth.model.User;
 import com.example.smartcollectauth.repository.UserRepository;
+import com.example.smartcollectauth.service.EmailService;
+import com.example.smartcollectauth.service.OtpService;
+import com.example.smartcollectauth.service.UserService;
+import com.example.smartcollectauth.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,7 +23,6 @@ public class UserServiceImpl implements UserService {
     private final OtpService otpService;
     private final EmailService emailService;
     private final JwtUtil jwtUtil;
-
 
     private final Map<String, UserRegistrationRequest> pendingUsers = new HashMap<>();
     private final Map<String, String> pendingOtps = new HashMap<>();
@@ -52,10 +58,8 @@ public class UserServiceImpl implements UserService {
 
 
         String otp = otpService.generateOtp(request.getEmail());
-
         pendingUsers.put(request.getEmail(), request);
         pendingOtps.put(request.getEmail(), otp);
-
 
         emailService.sendOtpEmail(request.getEmail(), otp);
 
@@ -74,19 +78,15 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Invalid OTP");
         }
 
-
         UserRegistrationRequest pending = pendingUsers.get(email);
-
 
         User user = new User();
         user.setUsername(pending.getUsername());
         user.setEmail(pending.getEmail());
         user.setPassword(passwordEncoder.encode(pending.getPassword()));
-        user.setIsverified(true);
-
+        user.setVerified(true);
 
         userRepository.save(user);
-
 
         pendingUsers.remove(email);
         pendingOtps.remove(email);
@@ -102,8 +102,8 @@ public class UserServiceImpl implements UserService {
 
         String otp = otpService.generateOtp(email);
         pendingOtps.put(email, otp);
-
         emailService.sendOtpEmail(email, otp);
+
         return true;
     }
 
@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(loginDto.getEmail())
                 .orElseThrow(() -> new RuntimeException("User does not exist"));
 
-        if (!user.isIsverified()) {
+        if (!user.isVerified()) {
             throw new RuntimeException("User email not verified!");
         }
 
@@ -124,4 +124,3 @@ public class UserServiceImpl implements UserService {
         return jwtUtil.generateToken(user.getEmail());
     }
 }
-
