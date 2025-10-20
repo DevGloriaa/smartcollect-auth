@@ -5,12 +5,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 @Data
-public class OtpVerificationRequest {
+public class ResendOtpRequest {
 
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
     private String email;
-
-    @NotBlank(message = "OTP is required")
-    private String otp;
 }

@@ -1,7 +1,6 @@
 package com.example.smartcollectauth.controller;
 
-import com.example.smartcollectauth.dto.LoginDto;
-import com.example.smartcollectauth.dto.UserRegistrationRequest;
+import com.example.smartcollectauth.dto.*;
 import com.example.smartcollectauth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +28,8 @@ public class UserController {
 
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<Map<String, Object>> verifyOtp(@RequestParam String email, @RequestParam String otp) {
-        boolean verified = userService.verifyOtp(email, otp);
+    public ResponseEntity<Map<String, Object>> verifyOtp(@RequestBody OtpVerificationRequest otpRequest) {
+        boolean verified = userService.verifyOtp(otpRequest.getEmail(), otpRequest.getOtp());
         return ResponseEntity.ok(Map.of(
                 "success", verified,
                 "message", verified ? "OTP verified successfully!" : "Invalid or expired OTP."
@@ -39,13 +38,14 @@ public class UserController {
 
 
     @PostMapping("/resend-otp")
-    public ResponseEntity<Map<String, Object>> resendOtp(@RequestParam String email) {
-        boolean sent = userService.resendOtp(email);
+    public ResponseEntity<Map<String, Object>> resendOtp(@RequestBody ResendOtpRequest resendRequest) {
+        boolean sent = userService.resendOtp(resendRequest.getEmail());
         return ResponseEntity.ok(Map.of(
                 "success", sent,
                 "message", sent ? "OTP resent successfully!" : "Failed to resend OTP. Please try again."
         ));
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> loginUser(@RequestBody LoginDto loginDto) {
