@@ -5,5 +5,6 @@ public interface EmailService {
 
     void sendOtpEmail(String toEmail, String otpCode);
 
-    void sendEmail(String toEmail, String subject, String body);
+
+    void sendHtmlEmail(String toEmail, String subject, String htmlBody);
 }
